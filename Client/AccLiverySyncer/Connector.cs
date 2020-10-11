@@ -15,7 +15,7 @@ namespace AccLiverySyncer
 {
     public class Connector
     {
-        private const string baseUri = "http://localhost:5000/api/v1/";
+        private const string baseUri = "https://accliveries.cj-mayer.de/api/v1/";
 
         private static  string jwt;
 
