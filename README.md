@@ -1,4 +1,6 @@
-# BeatSyncer
+# AccLiverySyncer
 
-This Application syncs installed beat saver songs with a specified database. 
-Other users specifying the same database will have next to real-time sync.
+This Application syncs liveries between all clients participating in a race.
+All clients must "register" with this application to upload their own livery.
+
+All other users of this programm can then access all liveries.
