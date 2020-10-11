@@ -121,8 +121,9 @@ namespace AccLiverySyncer
             {
                 Lbl_Info.Content = "Logged In";
             }
-            else if(status == HttpStatusCode.Forbidden)
+            else if(status == HttpStatusCode.Forbidden || status == HttpStatusCode.NotFound)
             {
+                // do not disclose reason for no login
                 Lbl_Info.Content = "Invalid Credentials. Keep the token empty if you need to register";
             }
             else if(status == 0)
@@ -178,7 +179,7 @@ namespace AccLiverySyncer
 
                 if(code == HttpStatusCode.Created)
                 {
-                    Box_Password.Text = token;
+                    Box_Password.Text = rcvToken;
                     Lbl_Info.Content = "Logged In";
                     SaveConfig(); // update the config
                 }

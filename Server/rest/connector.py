@@ -46,7 +46,7 @@ class Connector:
     def add_user(user: User):
         cursor = Connector.mydb.cursor()
 
-        cursor.execute('''select * from User where SteamId = %d or DiscordId = %d''' % (user.steam_id, user.discord_id))
+        cursor.execute('''select * from User where DiscordId = %d''' % (user.discord_id))
         result = cursor.fetchone()
 
         # user is already registered
@@ -77,7 +77,7 @@ class Connector:
         cursor = Connector.mydb.cursor()
 
         # currently only login over discord is supported
-        cursor.execute('''select * from User where SteamId = %d''' % (user.steam_id))
+        cursor.execute('''select * from User where DiscordId = %d''' % (user.discord_id))
         result = cursor.fetchone()
 
         # user is already registered
