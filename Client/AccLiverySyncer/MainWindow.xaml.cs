@@ -25,8 +25,17 @@ namespace AccLiverySyncer
             InitializeComponent();
             LoadConfig();
 
-            InitAsync();
-            
+
+            // show settings screen if token is empty
+            if (String.IsNullOrWhiteSpace(Box_Password.Text))
+            {
+                Tab_Main.SelectedIndex = 2;
+            }
+            else {
+                // try to login and update the liveri list
+                InitAsync();
+            }
+
         }
 
 

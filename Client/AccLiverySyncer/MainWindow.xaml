@@ -9,7 +9,7 @@
     <Grid>
         <DockPanel>
             <Label Name="Lbl_Info" Content="Logging in..." DockPanel.Dock="Bottom"/>
-            <TabControl VerticalAlignment="Stretch" DockPanel.Dock="Top">
+            <TabControl Name="Tab_Main" VerticalAlignment="Stretch" DockPanel.Dock="Top">
                 <TabItem Header="Content">
 
                     <Grid >
