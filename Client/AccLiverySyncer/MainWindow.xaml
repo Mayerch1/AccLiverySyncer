@@ -1,0 +1,138 @@
+﻿<Window x:Class="AccLiverySyncer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AccLiverySyncer"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <DockPanel>
+            <Label Name="Lbl_Info" Content="Logging in..." DockPanel.Dock="Bottom"/>
+            <TabControl VerticalAlignment="Stretch" DockPanel.Dock="Top">
+                <TabItem Header="Content">
+
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+
+                        <Grid Grid.Column="1">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Image Name="Img_list_decal" Grid.Row="0" />
+                            <Image Name="Img_list_sponsor" Grid.Row="1"/>
+                        </Grid>
+
+
+                        
+                        <DockPanel Grid.Column="0">
+
+
+                            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+                                
+                                <Button Content="Refresh" Click="Button_Click" Margin="1,2,2,1"/>
+
+                                <Button Name="Btn_Down_All" Content="Download All" Click="Btn_Down_All_Click" Margin="1,2,2,1"/>
+
+                                <Button Name="Btn_Down_Selection" Content="Download Selected" Click="Btn_Down_Selection_Click" Margin="1,2,2,1"/>
+                                <Button Content="Delete Selected" Click="Button_DeleteLivery_Click"  Margin="1,2,2,1"/>
+                            </StackPanel>
+
+
+
+                            <ListBox x:Name="List_Liveries" Grid.Row="1" BorderThickness="0" ItemsSource="{Binding}" DockPanel.Dock="Top" SelectionChanged="List_Liveries_SelectionChanged" Background="WhiteSmoke">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" Margin="5,0,5,0"/>
+                                            <TextBlock Text="{Binding IsInstalledString}" Margin="5,0,5,0"/>
+                                            <TextBlock Text="{Binding NeedsUpdateString}" Margin="5,0,5,0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+
+
+                    </Grid>
+
+
+                    
+                
+                </TabItem>
+
+                <TabItem Header="Upload">
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                    
+                        
+                            <Grid Grid.Column="1">
+                                
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                
+                                <Image Name="Img_decal" Grid.Row="0" />
+                                <Image Name="Img_sponsor" Grid.Row="1"/>
+                            </Grid>
+                            
+                        
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Stretch" Margin="5">
+                            
+                            <Label Content="Select a Livery for Upload"/>
+                            
+                            <Grid>
+                                <TextBox Name="Box_Livery_Upload" HorizontalAlignment="Stretch" TextChanged="Box_Livery_Upload_TextChanged"/>
+                                <Button Content=" ... " HorizontalAlignment="Right" Click="Button_Select_Livery_Click"/>
+                            </Grid>
+                            
+                            <Button Name="Btn_Upload_Livery" Content="Upload" Click="Btn_Upload_Livery_Click" Margin="0,10,0,0"/>
+
+                        </StackPanel>
+                    </Grid>
+
+                </TabItem>
+                <TabItem Header="Settings">
+                    <StackPanel>
+                        
+                        <Label Content="Discord Id" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+
+                        <TextBox Name="Box_Discord" HorizontalAlignment="Stretch" TextWrapping="Wrap" VerticalAlignment="Top" />
+
+                        <Label Content="Steam Id" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+
+                        <TextBox Name="Box_Steam" HorizontalAlignment="Stretch" TextWrapping="Wrap" VerticalAlignment="Top" />
+
+                        <Label Content="Token" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+
+                        <TextBox Name="Box_Password" HorizontalAlignment="Stretch" VerticalAlignment="Top" TextChanged="Box_Password_TextChanged"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Button Name="Btn_Validate" Margin="5" Content=" Login " IsEnabled="False" HorizontalAlignment="Left"  VerticalAlignment="Top" Click="Button_Validate_Click"/>
+                        <Button Name="Btn_Register" Margin="5" Content=" Register " HorizontalAlignment="Left" VerticalAlignment="Top" Click="Button_Register_Click"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,10,0,10"/>
+
+                        <Label Content="ACC Path"/>
+                        <TextBox Name="Box_ACCPath" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+
+                    </StackPanel>
+
+                </TabItem>
+            </TabControl>
+            
+        </DockPanel>
+    </Grid>
+</Window>

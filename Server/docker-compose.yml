@@ -1,0 +1,54 @@
+# ./docker-compose.yml
+version: '3.3'
+services:
+  db:
+    image: mysql
+    restart: always
+    container_name: accLiveryDb
+    #command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: 'AccLiveries'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: '***'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3306:3306'
+    expose:
+      # Opens port 3307 on the container
+      - '3306'
+      # Where our data will be persisted
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+
+  rest_server:
+    build: ./rest
+    restart: always
+    container_name: accLiveryServer
+
+    depends_on:
+      - db
+
+    environment:
+      - FLASK_SECRET_KEY=***
+      - AUTH_SECRET_KEY=***
+      - SQL_PASSWORD=***
+      - SQL_ADDRESS=db
+      - SQL_PORT=3306
+      - DOWNLOAD_DIR_ABS=/data
+      - SERVING_PORT=5001
+
+
+    
+    stdin_open:  true
+    tty: true
+
+    ports:
+      - '5001:5001'
+    expose:
+      - '5001'
+
+    volumes:
+      - ./rest/data:/data
+      
+
