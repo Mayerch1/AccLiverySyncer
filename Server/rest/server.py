@@ -92,7 +92,7 @@ def get_livery_list():
 
     user = validate_request(request.headers)
     if not user:
-        abort(403)
+        abort(401)
 
     livs = Connector.get_liveries()
 
@@ -108,7 +108,7 @@ def upload_livery():
 
     user = validate_request(request.headers)
     if not user:
-        abort(403)
+        abort(401)
 
 
     if not os.path.exists(download_dir):
@@ -147,7 +147,7 @@ def upload_livery():
 def update_livery():
     user = validate_request(request.headers)
     if not user:
-        abort(403)
+        abort(401)
 
 
     if not os.path.exists(download_dir):
@@ -159,6 +159,7 @@ def update_livery():
         or not 'Checksum' in request.form:
 
         abort(400)
+
 
     # check if livery is existing, and if the user is the owner
     liv = Connector.get_livery_by_name(request.form['Name'][:50])
@@ -191,7 +192,7 @@ def download_livery(id):
 
     user = validate_request(request.headers)
     if not user:
-        abort(403)
+        abort(401)
 
     if not id.isdigit():
         abort(400)
@@ -214,7 +215,7 @@ def delete_livery(id):
 
     user = validate_request(request.headers)
     if not user:
-        abort(403)
+        abort(401)
 
     if not id.isdigit():
         abort(400)

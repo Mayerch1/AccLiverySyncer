@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using Mayerch1.GithubUpdateCheck;
 
 namespace AccLiverySyncer
 {
@@ -20,6 +21,13 @@ namespace AccLiverySyncer
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        GithubUpdateCheck repo = new GithubUpdateCheck("Mayerch1", "AccLiverySyncer");
+        const string version = "0.1.0.0";
+
+
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -29,7 +37,7 @@ namespace AccLiverySyncer
             // show settings screen if token is empty
             if (String.IsNullOrWhiteSpace(Box_Password.Text))
             {
-                Tab_Main.SelectedIndex = 2;
+                Tab_Main.SelectedIndex = 3;
             }
             else {
                 // try to login and update the liveri list
@@ -44,6 +52,12 @@ namespace AccLiverySyncer
         {
             await TryLoginAsync();
             await UpdateLiveryListAsync();
+
+            if(await repo.IsUpdateAvailableAsync(version, VersionChange.Minor))
+            {
+                Lbl_Info.Content = "Update available";
+                TabItem_Update.Visibility = Visibility.Visible;
+            }
         }
 
         public void LoadConfig()
@@ -68,9 +82,13 @@ namespace AccLiverySyncer
 
                     Box_ACCPath.Text = sets.ACCPath;
                     Box_Discord.Text = sets.DiscordId;
-                    Box_Steam.Text = sets.SteamId;
+                    //Box_Steam.Text = sets.SteamId;
                     Box_Password.Text = sets.Token;
+
+                    Box_Host.Text = sets.Host;
+                    Connector.hostUri = sets.Host;
                 }
+
             }
         }
 
@@ -89,24 +107,25 @@ namespace AccLiverySyncer
             Model.Settings sets = new Settings
             {
                 DiscordId = Box_Discord.Text,
-                SteamId = Box_Steam.Text,
+                //SteamId = Box_Steam.Text,
                 ACCPath = Box_ACCPath.Text,
-                Token = Box_Password.Text
+                Token = Box_Password.Text,
+                Host = Box_Host.Text
+
             };
 
             File.WriteAllText(file, JsonConvert.SerializeObject(sets));
         }
 
 
-        
 
         private async Task TryLoginAsync()
         {
             long discordId;
             bool discordIdValid = long.TryParse(Box_Discord.Text, out discordId);
 
-            long steamId;
-            bool steamIdValid = long.TryParse(Box_Steam.Text, out steamId);
+            //long steamId;
+            //bool steamIdValid = long.TryParse(Box_Steam.Text, out steamId);
 
             var token = Box_Password.Text;
 
@@ -115,13 +134,23 @@ namespace AccLiverySyncer
 
             Lbl_Info.Content = "Logging in...";
 
-            var status = await Connector.Login(discordId, token);
+
+            HttpStatusCode status;
+            try
+            {
+                status = await Connector.Login(discordId, token);
+            }
+            catch (System.UriFormatException)
+            {
+                Lbl_Info.Content = "Invalid Host Url";
+                return;
+            }
 
             if (status == HttpStatusCode.OK)
             {
                 Lbl_Info.Content = "Logged In";
             }
-            else if(status == HttpStatusCode.Forbidden || status == HttpStatusCode.NotFound)
+            else if(status == HttpStatusCode.Unauthorized || status == HttpStatusCode.NotFound)
             {
                 // do not disclose reason for no login
                 Lbl_Info.Content = "Invalid Credentials. Keep the token empty if you need to register";
@@ -141,7 +170,17 @@ namespace AccLiverySyncer
 
         private async Task UpdateLiveryListAsync()
         {
-            LiveryController.liveries = await Connector.GetLiveries();
+
+            try
+            {
+                LiveryController.liveries = await Connector.GetLiveries();
+            }
+            catch (System.UriFormatException)
+            {
+                Lbl_Info.Content = "Invalid Host Url";
+                return;
+            }
+            
 
             LiveryController.RefreshInstalled(Box_ACCPath.Text);
             LiveryController.RefreshUpdateNeeded(Box_ACCPath.Text);
@@ -162,8 +201,8 @@ namespace AccLiverySyncer
             long discordId;
             bool discordIdValid = long.TryParse(Box_Discord.Text, out discordId);
 
-            long steamId;
-            bool steamIdValid = long.TryParse(Box_Steam.Text, out steamId);
+            //long steamId;
+            //bool steamIdValid = long.TryParse(Box_Steam.Text, out steamId);
 
 
             if (discordIdValid)
@@ -231,6 +270,10 @@ namespace AccLiverySyncer
             Lbl_Info.Content = err;
 
 
+            //  this will update the installed/update needed columns
+            LiveryController.RefreshInstalled(Box_ACCPath.Text);
+            LiveryController.RefreshUpdateNeeded(Box_ACCPath.Text);
+            List_Liveries.ItemsSource = LiveryController.liveries;
         }
 
 
@@ -245,6 +288,12 @@ namespace AccLiverySyncer
 
                 string err = await LiveryController.UpdateRemoteLivery(Box_ACCPath.Text, List_Liveries.SelectedIndex);
                 Lbl_Info.Content = err;
+
+
+                //  this will update the installed/update needed columns
+                LiveryController.RefreshInstalled(Box_ACCPath.Text);
+                LiveryController.RefreshUpdateNeeded(Box_ACCPath.Text);
+                List_Liveries.ItemsSource = LiveryController.liveries;
             }
             else
             {
@@ -358,6 +407,35 @@ namespace AccLiverySyncer
                     }
                 }
             }
+        }
+
+        private void Box_Host_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(sender is TextBox box)
+            {
+                // test for valid http or https url
+               
+                if (Uri.IsWellFormedUriString(box.Text, UriKind.Absolute))
+                {
+                    Connector.hostUri = box.Text;
+                    Lbl_Info.Content = "";
+                }
+                else
+                {
+                    Lbl_Info.Content = "Invalid Url";
+                }
+            }
+        }
+
+        private void Button_Open_Update_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("explorer.exe", "https://github.com/Mayerch1/AccLiverySyncer/releases/latest");
+            
+        }
+
+        private void Button_OpenWiki_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("explorer.exe", "https://github.com/Mayerch1/AccLiverySyncer/wiki");
         }
     }
 }

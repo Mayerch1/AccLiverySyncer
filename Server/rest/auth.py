@@ -9,11 +9,6 @@ class Auth:
 
     secret = os.getenv('AUTH_SECRET_KEY')
 
-    # save the token twice
-    # once for easy indexed access (at login)
-    # once for user-based access (for invalidating old tokens)
-    token_list = []
-    user_dict = {}
 
 
     @staticmethod
@@ -23,13 +18,9 @@ class Auth:
             Auth.token_list.remove(Auth.user_dict[user.id])
             del Auth.user_dict[user.id]
 
-        expires = (datetime.now() + timedelta(days=7)).timestamp()
+        expires = (datetime.now() + timedelta(hours=12)).timestamp()
         
         token = jwt.encode({'Id': user.id, 'Expires': expires}, Auth.secret, algorithm='HS256')
-
-        Auth.token_list.append(token)
-        Auth.user_dict[user.id] = token
-
         
         return token
 
@@ -37,10 +28,10 @@ class Auth:
 
     def user_from_token(token: str):
 
-        if not token in Auth.token_list:
-            return  None
-
-        decoded = jwt.decode(token, Auth.secret, algorithms=['HS256'])
+        try:
+            decoded = jwt.decode(token, Auth.secret, algorithms=['HS256'])
+        except jwt.DecodeError:
+            return None
 
         if 'Expires' not in decoded\
             or 'Id' not in decoded\

@@ -10,5 +10,6 @@ namespace AccLiverySyncer.Model
         public string SteamId;
         public string Token;
         public string ACCPath;
+        public string Host;
     }
 }

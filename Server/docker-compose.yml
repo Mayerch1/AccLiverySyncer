@@ -35,7 +35,7 @@ services:
       - SQL_PASSWORD=***
       - SQL_ADDRESS=db
       - SQL_PORT=3306
-      - DOWNLOAD_DIR_ABS=/data
+      - DOWNLOAD_DIR_ABS=/data/
       - SERVING_PORT=5001
     
     stdin_open:  true

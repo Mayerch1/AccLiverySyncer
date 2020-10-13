@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AccLiverySyncer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="AccLiverySyncer" Height="450" Width="800">
     <Grid>
         <DockPanel>
             <Label Name="Lbl_Info" Content="Logging in..." DockPanel.Dock="Bottom"/>
@@ -110,9 +110,6 @@
 
                         <TextBox Name="Box_Discord" HorizontalAlignment="Stretch" TextWrapping="Wrap" VerticalAlignment="Top" />
 
-                        <Label Content="Steam Id" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
-
-                        <TextBox Name="Box_Steam" HorizontalAlignment="Stretch" TextWrapping="Wrap" VerticalAlignment="Top" />
 
                         <Label Content="Token" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
 
@@ -128,8 +125,30 @@
                         <Label Content="ACC Path"/>
                         <TextBox Name="Box_ACCPath" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
 
+                        <Label Content="Host Url"/>
+                        <TextBox Name="Box_Host" HorizontalAlignment="Stretch" TextChanged="Box_Host_TextChanged"/>
+
                     </StackPanel>
 
+                </TabItem>
+                <TabItem Header="Introduction">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <Image Source="res/Setup_1.png" Grid.Row="0" Grid.RowSpan="3"/>
+                        <Button Content="Open Wiki" Grid.Row="3" HorizontalAlignment="Stretch" Click="Button_OpenWiki_Click"/>
+
+                    </Grid>
+                </TabItem>
+                <TabItem Name="TabItem_Update" Header="Update" Visibility="Hidden">
+                    <Grid>
+                        <Button Content="Open Update" Click="Button_Open_Update_Click"/>
+                    </Grid>
                 </TabItem>
             </TabControl>
             

@@ -138,7 +138,7 @@ namespace AccLiverySyncer
 
             var code = await Connector.DeleteLivery(liveries[index]);
 
-            if(code == System.Net.HttpStatusCode.Unauthorized)
+            if(code == System.Net.HttpStatusCode.Forbidden)
             {
                 err = "You do not have permission to delete this livery";
             }
@@ -203,16 +203,13 @@ namespace AccLiverySyncer
             {
                 err = "Cannot reach server";
             }
+            else if(result == System.Net.HttpStatusCode.Forbidden && isUpdate)
+            {
+                err = "The livery is owned by another user";
+            }
             else if(result == System.Net.HttpStatusCode.Unauthorized)
             {
-                if (isUpdate)
-                {
-                    err = "The livery is owned by another user";
-                }
-                else
-                {
-                    err = "Invalid Credentials. Keep the token empty if you need to register";
-                }
+                err = "Invalid Credentials. Keep the token empty if you need to register";
             }
             else
             {

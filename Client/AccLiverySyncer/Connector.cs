@@ -15,7 +15,16 @@ namespace AccLiverySyncer
 {
     public class Connector
     {
-        private const string baseUri = "https://accliveries.cj-mayer.de/api/v1/";
+        public static string hostUri = "https://accliveries.cj-mayer.de";
+
+        private static string baseUri
+        {
+            get
+            {
+                return hostUri + "/api/v1/";
+            }
+        }
+
 
         private static  string jwt;
 
@@ -50,6 +59,7 @@ namespace AccLiverySyncer
 
         public static async Task<HttpStatusCode> Login(long discordId, string token)
         {
+            
             var client = new RestClient(baseUri + "users/login");
             var user = new User { DiscordId = discordId, Token = token };
 
