@@ -102,7 +102,15 @@ namespace AccLiverySyncer
             
         }
 
-        public static async Task<bool> DownloadLivery(string accPath, Livery liv)
+        /// <summary>
+        /// Download a livery from the server into the accPath
+        /// Function shall only be called if livery is not already existin in the accPath.
+        /// </summary>
+        /// <param name="accPath">path to acc livery folder</param>
+        /// <param name="liv">livery object (holds name/id of livery)</param>
+        /// <param name="fileWhitelist">whitelist, security measurement to only download allowed files</param>
+        /// <returns></returns>
+        public static async Task<bool> DownloadLivery(string accPath, Livery liv, string[] fileWhitelist = null)
         {
             var client = new RestClient(baseUri + "liveries/" + liv.Id);
 
@@ -111,7 +119,6 @@ namespace AccLiverySyncer
             request.AddHeader("Authorization", jwt);
 
             var response = await client.ExecuteGetAsync(request);
-
 
 
             if (response.StatusCode == HttpStatusCode.OK)
@@ -137,7 +144,34 @@ namespace AccLiverySyncer
 
                 File.WriteAllBytes(zipPath, fileBytes);
 
-                ZipFile.ExtractToDirectory(zipPath, accPath + "/" + liv.Name);
+
+                if (fileWhitelist == null || fileWhitelist.Length == 0)
+                {
+                    ZipFile.ExtractToDirectory(zipPath, accPath + "/" + liv.Name);
+                }
+                else
+                {
+                    // extract into tmp directory and only copy valid files
+                    if (Directory.Exists(path + liv.Name))
+                    {
+                        Directory.Delete(path + liv.Name, true);
+                    }
+
+                    Directory.CreateDirectory(path + liv.Name);
+                    ZipFile.ExtractToDirectory(zipPath, path + "/" + liv.Name);
+
+                    // create new livery directory
+                    Directory.CreateDirectory(accPath + "/" + liv.Name);
+
+                    var files = Hash.GetFileinDirWhitelist(path + liv.Name, fileWhitelist);
+                    foreach(var file in files)
+                    {
+                        File.Copy(file, accPath + "/" + liv.Name + "/" + Path.GetFileName(file));
+                    }
+
+                    // cleanup
+                    Directory.Delete(path + liv.Name, true);
+                }
 
 
                 // keep the tmp folder clean
@@ -153,7 +187,16 @@ namespace AccLiverySyncer
             }
         }
 
-        public static async Task<HttpStatusCode> UploadLivery(string path, string Name, string Checksum, bool isUpdate = false)
+        /// <summary>
+        /// Upload a livery to the server, might fail and return http error
+        /// </summary>
+        /// <param name="path">Path to the livery folder</param>
+        /// <param name="Name">name of the livery, usually folder name</param>
+        /// <param name="Checksum">md5 hash of the folder, fileWhitelist of hash should match fileWhitelist parameter</param>
+        /// <param name="isUpdate">specify wether PUT or POST is executed</param>
+        /// <param name="fileWhitelist">only upload the specified files (should match whitelist used for hashing)</param>
+        /// <returns></returns>
+        public static async Task<HttpStatusCode> UploadLivery(string path, string Name, string Checksum, bool isUpdate = false, string[] fileWhitelist = null)
         {
             var tmpPath = Path.GetTempPath() + "/AccLiveryManager/";
             var zipPath = tmpPath + "/" + Name + ".zip";
@@ -170,7 +213,40 @@ namespace AccLiverySyncer
                 File.Delete(zipPath);
             }
 
+
+            if(fileWhitelist != null && fileWhitelist.Length > 0)
+            {
+                // create new temp directory for whitelist
+                if (Directory.Exists(tmpPath + Name))
+                {
+                    Directory.Delete(tmpPath + Name, true);
+                }
+
+                Directory.CreateDirectory(tmpPath + Name);
+
+
+                var files = Hash.GetFileinDirWhitelist(path, LiveryController.fileWhitelist);
+                foreach(var file in files)
+                {
+                    File.Copy(file, tmpPath + Name + "/" + Path.GetFileName(file));
+                }
+
+                path = tmpPath + Name;
+
+            }
+            
+
             ZipFile.CreateFromDirectory(path, zipPath);
+
+
+
+            if (fileWhitelist != null && fileWhitelist.Length > 0)
+            {
+                // delete the temp directory 
+                Directory.Delete(tmpPath + Name, true);
+            }
+
+
 
 
             var client = new RestClient(baseUri + "liveries");

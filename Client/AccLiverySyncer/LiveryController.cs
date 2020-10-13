@@ -12,6 +12,8 @@ namespace AccLiverySyncer
     {
         public static List<Livery> liveries = new List<Livery>();
 
+        public static readonly string[] fileWhitelist = { "decals.png", "decals.json", "sponsors.png", "sponsors.json" };
+
 
         public static void RefreshInstalled(string accPath)
         {
@@ -43,7 +45,7 @@ namespace AccLiverySyncer
                 // calculate hash over directroy
                 // compare it to the hash of the database
                 // mark for update when hashs are different
-                var currentHash = Hash.CreateMd5ForFolder(accPath + "/" + liv.Name);
+                var currentHash = Hash.CreateMd5ForFolder(accPath + "/" + liv.Name, fileWhitelist);
                 if(currentHash != liv.Checksum)
                 {
                     liv.NeedsUpdate = true;
@@ -95,7 +97,7 @@ namespace AccLiverySyncer
             if (Directory.Exists(liveryPath))
             {
                 // make sure the server version is newer
-                var lastWrite = Directory.GetLastWriteTime(liveryPath);
+                var lastWrite = Directory.GetLastWriteTimeUtc(liveryPath);
 
                 if(lastWrite > liveries[index].InsertTime)
                 {
@@ -104,14 +106,22 @@ namespace AccLiverySyncer
                 }
 
 
-                Directory.Delete(liveryPath, true);
+                try
+                {
+                    Directory.Delete(liveryPath, true);
+                }
+                catch(IOException ex)
+                {
+                    err = ex.Message;
+                    return err;
+                }
             }
 
 
 
-            if(await Connector.DownloadLivery(accPath, liveries[index])){
+            if(await Connector.DownloadLivery(accPath, liveries[index], fileWhitelist)){
 
-                var newHash = Hash.CreateMd5ForFolder(liveryPath);
+                var newHash = Hash.CreateMd5ForFolder(liveryPath, fileWhitelist);
 
                 if(newHash != liveries[index].Checksum)
                 {
@@ -124,6 +134,10 @@ namespace AccLiverySyncer
 
 
                 liveries[index].NeedsUpdate = false;
+            }
+            else
+            {
+                err = index + ". failed to download livery";
             }
 
             return err;
@@ -171,8 +185,15 @@ namespace AccLiverySyncer
                 return err;
             }
 
-            var hash = Hash.CreateMd5ForFolder(liveryPath);
+            var hash = Hash.CreateMd5ForFolder(liveryPath, fileWhitelist);
             var name = new DirectoryInfo(liveryPath).Name;
+
+
+            if(hash == null)
+            {
+                err = "Failed to hash livery";
+                return err;
+            }
             
             // first check if there is any duplicates on the server
             // when a duplicate is found, immediately try to PATCH
@@ -185,7 +206,7 @@ namespace AccLiverySyncer
             }
 
 
-            var result = await Connector.UploadLivery(liveryPath, name, hash, isUpdate);
+            var result = await Connector.UploadLivery(liveryPath, name, hash, isUpdate, fileWhitelist);
 
             // ok
             if (result == System.Net.HttpStatusCode.OK)

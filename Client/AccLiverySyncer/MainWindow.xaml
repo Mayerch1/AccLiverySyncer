@@ -41,8 +41,8 @@
 
                                 <Button Name="Btn_Down_All" Content="Download All" Click="Btn_Down_All_Click" Margin="1,2,2,1"/>
 
-                                <Button Name="Btn_Down_Selection" Content="Download Selected" Click="Btn_Down_Selection_Click" Margin="1,2,2,1"/>
-                                <Button Content="Delete Selected" Click="Button_DeleteLivery_Click"  Margin="1,2,2,1"/>
+                                <Button Name="Btn_Down_Selection" Content="Download Selected" Click="Btn_Down_Selection_Click" Margin="1,2,2,1" IsEnabled="False"/>
+                                <Button Name="Btn_Delete_Selection"  Content="Delete Selected" Click="Button_DeleteLivery_Click"  Margin="1,2,2,1" IsEnabled="False"/>
                             </StackPanel>
 
 

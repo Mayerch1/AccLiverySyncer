@@ -188,6 +188,19 @@ namespace AccLiverySyncer
             List_Liveries.ItemsSource = LiveryController.liveries;
         }
 
+        /// <summary>
+        /// clears all image viewers, this allows deletion of locked images
+        /// </summary>
+        private void ReleaseImageLocks()
+        {
+            // TODO: release resource correct for deletion
+            Img_decal.Source = null;
+            Img_list_decal.Source = null;
+            Img_sponsor.Source = null;
+            Img_list_sponsor.Source = null;
+        }
+
+
 
         private async void Button_Validate_Click(object sender, RoutedEventArgs e)
         {
@@ -265,7 +278,9 @@ namespace AccLiverySyncer
         {
             Lbl_Info.Content = "Downloading all liveries, this can take a while...";
 
-            
+
+            ReleaseImageLocks();
+
             string err = await LiveryController.UpdateAllRemoteLiveries(Box_ACCPath.Text);
             Lbl_Info.Content = err;
 
@@ -284,6 +299,9 @@ namespace AccLiverySyncer
             
             if(item is Livery liv)
             {
+                // release access to files
+                ReleaseImageLocks();
+
                 Lbl_Info.Content = "Downloading...";
 
                 string err = await LiveryController.UpdateRemoteLivery(Box_ACCPath.Text, List_Liveries.SelectedIndex);
@@ -291,9 +309,7 @@ namespace AccLiverySyncer
 
 
                 //  this will update the installed/update needed columns
-                LiveryController.RefreshInstalled(Box_ACCPath.Text);
-                LiveryController.RefreshUpdateNeeded(Box_ACCPath.Text);
-                List_Liveries.ItemsSource = LiveryController.liveries;
+                await UpdateLiveryListAsync();
             }
             else
             {
@@ -309,6 +325,8 @@ namespace AccLiverySyncer
 
             if (item is Livery liv)
             {
+                // image can stay locked, as no local files are deleted
+
                 Lbl_Info.Content = "Deleting remote...";
 
                 string err = await LiveryController.DeleteRemoteLivery(List_Liveries.SelectedIndex);
@@ -383,7 +401,8 @@ namespace AccLiverySyncer
                 var selected = list.SelectedItem;
                 if (selected is Livery liv)
                 {
-
+                    Btn_Down_Selection.IsEnabled = true;
+                    Btn_Delete_Selection.IsEnabled = true;
 
                     string accPath = Box_ACCPath.Text;
 
@@ -405,6 +424,11 @@ namespace AccLiverySyncer
                         }
 
                     }
+                }
+                else
+                {
+                    Btn_Down_Selection.IsEnabled = false;
+                    Btn_Delete_Selection.IsEnabled = false;
                 }
             }
         }
