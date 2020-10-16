@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Mayerch1.GithubUpdateCheck;
+using System.Windows.Media;
 
 namespace AccLiverySyncer
 {
@@ -155,7 +156,7 @@ namespace AccLiverySyncer
                 // do not disclose reason for no login
                 Lbl_Info.Content = "Invalid Credentials. Keep the token empty if you need to register";
             }
-            else if(status == 0)
+            else if(status == HttpStatusCode.BadGateway || status == 0)
             {
                 Lbl_Info.Content = "Cannot reach the server";
             }
@@ -188,16 +189,39 @@ namespace AccLiverySyncer
             List_Liveries.ItemsSource = LiveryController.liveries;
         }
 
+
+
+        private void SetImage(Image img, string imagePath)
+        {
+            if (File.Exists(imagePath))
+            {
+                Uri uri = new Uri(imagePath);
+
+                if (File.Exists(uri.LocalPath))
+                {
+                    BitmapImage bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.UriSource = uri;
+                    bmp.EndInit();
+
+
+                    img.Source = bmp;
+                }
+            }
+        }
+
+
         /// <summary>
         /// clears all image viewers, this allows deletion of locked images
         /// </summary>
         private void ReleaseImageLocks()
         {
             // TODO: release resource correct for deletion
-            Img_decal.Source = null;
-            Img_list_decal.Source = null;
-            Img_sponsor.Source = null;
-            Img_list_sponsor.Source = null;
+            //Img_decal.Source = null;
+            //Img_list_decal.Source = null;
+            //Img_sponsor.Source = null;
+            //Img_list_sponsor.Source = null;
         }
 
 
@@ -377,19 +401,8 @@ namespace AccLiverySyncer
                 if (Directory.Exists(box.Text))
                 {
 
-                    Uri decalUri = new Uri(box.Text + "/decals.png");
-                    Uri sponsorUri = new Uri(box.Text + "/sponsors.png");
-                    // load the images
-
-                    if (File.Exists(decalUri.LocalPath)){
-                        Img_decal.Source = new BitmapImage(decalUri);
-                    }
-
-                    if (File.Exists(sponsorUri.LocalPath))
-                    {
-                        Img_sponsor.Source = new BitmapImage(sponsorUri);
-                    }
-
+                    SetImage(Img_decal, box.Text + "/decals.png");
+                    SetImage(Img_sponsor, box.Text + "/sponsors.png");
                 }
             }
         }
@@ -406,24 +419,8 @@ namespace AccLiverySyncer
 
                     string accPath = Box_ACCPath.Text;
 
-                    if (Directory.Exists(accPath + "/" + liv.Name))
-                    {
-
-                        Uri decalUri = new Uri(accPath + "/" + liv.Name + "/decals.png");
-                        Uri sponsorUri = new Uri(accPath + "/" + liv.Name + "/sponsors.png");
-                        // load the images
-
-                        if (File.Exists(decalUri.LocalPath))
-                        {
-                            Img_list_decal.Source = new BitmapImage(decalUri);
-                        }
-
-                        if (File.Exists(sponsorUri.LocalPath))
-                        {
-                            Img_list_sponsor.Source = new BitmapImage(sponsorUri);
-                        }
-
-                    }
+                    SetImage(Img_list_decal, accPath + "/" + liv.Name + "/decals.png");
+                    SetImage(Img_list_sponsor, accPath + "/" + liv.Name + "/sponsors.png");
                 }
                 else
                 {

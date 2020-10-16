@@ -8,13 +8,35 @@ from model.livery import Livery
 
 
 class Connector:
-    mydb = mysql.connector.connect(
+    db_data = mysql.connector(
     host = os.getenv('SQL_ADDRESS'),
     port = int(os.getenv('SQL_PORT')),
     user = "serverScript",
     password = os.getenv('SQL_PASSWORD'),
     database ='AccLiveries'
     )
+
+    _conn = None
+    _cursor = None
+
+
+    @staticmethod
+    def _get_cursor():
+        Connector._conn = Connector.db_data.connect()
+        Connector._cursor = Connector._conn.cursor()
+        return Connector._cursor
+        
+
+    @staticmethod
+    def _close_connection():
+        Connector._conn.close()
+
+
+    @staticmethod
+    def _commit_connection():
+        Connector._conn.commit()
+        Connector._conn.close()
+
 
     @staticmethod
     def _get_hashed_password(plain_text_password):
@@ -31,10 +53,12 @@ class Connector:
 
     @staticmethod
     def get_user(id: int):
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
         cursor.execute('''select * from User where ID=%d''' % (id))
 
         user = cursor.fetchone()
+
+        Connector._close_connection()
 
         if user is None:
             return None
@@ -44,10 +68,12 @@ class Connector:
 
     @staticmethod
     def add_user(user: User):
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
 
         cursor.execute('''select * from User where DiscordId = %d''' % (user.discord_id))
         result = cursor.fetchone()
+
+       
 
         # user is already registered
         if result is not None:
@@ -66,7 +92,9 @@ class Connector:
         cursor.execute('''insert INTO User(SteamId, DiscordId, Hash) VALUES(%d, %d, "%s")''' % (user.steam_id, user.discord_id, _hash))
         id = cursor.lastrowid
 
-        Connector.mydb.commit()
+
+        Connector._commit_connection()
+
 
         user.id = id
         return user
@@ -74,11 +102,13 @@ class Connector:
 
     @staticmethod
     def validate_hash(user: User):
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
 
         # currently only login over discord is supported
         cursor.execute('''select * from User where DiscordId = %d''' % (user.discord_id))
         result = cursor.fetchone()
+
+        Connector._close_connection()
 
         # user is already registered
         if result is None:
@@ -93,14 +123,14 @@ class Connector:
 
 
 
-
-
     @staticmethod
     def get_liveries():
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
 
         cursor.execute('''select * from Livery''')
         result = cursor.fetchall()
+
+        Connector._close_connection()
 
         if result is None:
             return None
@@ -114,12 +144,13 @@ class Connector:
 
     @staticmethod
     def add_livery(liv: Livery):
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
+
 
         cursor.execute('''insert INTO Livery(Checksum, Owner, Filename, Name) VALUES("%s", %d, "%s", "%s")''' % (liv.checksum, liv.owner_id, liv.filename, liv.name))
         id = cursor.lastrowid
 
-        Connector.mydb.commit()
+        Connector._commit_connection()
 
         liv.id = id
         return liv
@@ -128,12 +159,14 @@ class Connector:
 
     @staticmethod
     def get_livery_by_name(name: str):
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
 
         cursor.execute('''select * from Livery where Name="%s"''' % (name))
 
 
         liv = cursor.fetchone()
+
+        Connector._close_connection()
 
         if liv is None:
             return None
@@ -142,10 +175,12 @@ class Connector:
 
     @staticmethod
     def get_livery(id: int):
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
         cursor.execute('''select * from Livery where ID=%d''' % (id))
 
         liv = cursor.fetchone()
+
+        Connector._close_connection()
 
         if liv is None:
             return None
@@ -155,10 +190,10 @@ class Connector:
 
     @staticmethod
     def del_livery(id: int):
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
         cursor.execute('''delete from Livery where ID=%d''' % (id))
 
-        Connector.mydb.commit()
+        Connector._commit_connection()
 
 
     @staticmethod
@@ -166,8 +201,8 @@ class Connector:
 
         date_formatted = liv.insert_time.strftime('%Y-%m-%d %H:%M:%S')
 
-        cursor = Connector.mydb.cursor()
+        cursor = Connector._get_cursor()
         cursor.execute('''update Livery SET Checksum="%s", InsertTime="%s" where ID=%d''' % (liv.checksum, date_formatted, liv.id))
 
-        Connector.mydb.commit()
+        Connector._commit_connection()
         

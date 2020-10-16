@@ -34,7 +34,6 @@
                         
                         <DockPanel Grid.Column="0">
 
-
                             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
                                 
                                 <Button Content="Refresh" Click="Button_Click" Margin="1,2,2,1"/>
