@@ -8,7 +8,7 @@ from model.livery import Livery
 
 
 class Connector:
-    db_data = mysql.connector(
+    db_data = mysql.connector.MySQLConnection(
     host = os.getenv('SQL_ADDRESS'),
     port = int(os.getenv('SQL_PORT')),
     user = "serverScript",
