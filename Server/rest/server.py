@@ -32,7 +32,7 @@ def validate_request(header):
 @app.route('/api/v1/users/create', methods=['POST'])
 def create_user():
     """create a new user
-       requires: discordID, steamID
+       requires: discordID
 
        will fail if either of it is already in use
 

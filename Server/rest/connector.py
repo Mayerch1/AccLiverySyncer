@@ -8,13 +8,6 @@ from model.livery import Livery
 
 
 class Connector:
-    db_data = mysql.connector.MySQLConnection(
-    host = os.getenv('SQL_ADDRESS'),
-    port = int(os.getenv('SQL_PORT')),
-    user = "serverScript",
-    password = os.getenv('SQL_PASSWORD'),
-    database ='AccLiveries'
-    )
 
     _conn = None
     _cursor = None
@@ -22,7 +15,15 @@ class Connector:
 
     @staticmethod
     def _get_cursor():
-        Connector._conn = Connector.db_data.connect()
+        Connector._conn = mysql.connector.connect(
+                host = os.getenv('SQL_ADDRESS'),
+                port = int(os.getenv('SQL_PORT')),
+                user = "serverScript",
+                password = os.getenv('SQL_PASSWORD'),
+                database ='AccLiveries'
+                )
+        
+
         Connector._cursor = Connector._conn.cursor()
         return Connector._cursor
         
@@ -92,9 +93,7 @@ class Connector:
         cursor.execute('''insert INTO User(SteamId, DiscordId, Hash) VALUES(%d, %d, "%s")''' % (user.steam_id, user.discord_id, _hash))
         id = cursor.lastrowid
 
-
         Connector._commit_connection()
-
 
         user.id = id
         return user
@@ -103,6 +102,9 @@ class Connector:
     @staticmethod
     def validate_hash(user: User):
         cursor = Connector._get_cursor()
+
+        if user.discord_id is None:
+            return None
 
         # currently only login over discord is supported
         cursor.execute('''select * from User where DiscordId = %d''' % (user.discord_id))
@@ -146,7 +148,7 @@ class Connector:
     def add_livery(liv: Livery):
         cursor = Connector._get_cursor()
 
-
+        # livery must have valid members
         cursor.execute('''insert INTO Livery(Checksum, Owner, Filename, Name) VALUES("%s", %d, "%s", "%s")''' % (liv.checksum, liv.owner_id, liv.filename, liv.name))
         id = cursor.lastrowid
 

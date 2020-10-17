@@ -14,8 +14,8 @@
                 "FLASK_SECRET_KEY": "***",
                 "AUTH_SECRET_KEY": "***",
                 "SQL_PASSWORD": "***",
-                "SQL_ADDRESS": "127.0.0.1",
-                "SQL_PORT": "3306",
+                "SQL_ADDRESS": "10.0.0.2",
+                "SQL_PORT": "3456",
                 "DOWNLOAD_DIR_ABS": "F:\\Christian\\Documents\\Code\\Csharp\\AccLiverySyncer\\Server\\liveries\\",
                 "SERVING_PORT": "5000"
             }
