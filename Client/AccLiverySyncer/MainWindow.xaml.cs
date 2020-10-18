@@ -492,6 +492,14 @@ namespace AccLiverySyncer
                     Stack_Intro_Register.Visibility = Visibility.Visible;
                     Box_Discord.Text = box.Text;
                 }
+                else if(box.Text.Length > 40)
+                {
+                    Lbl_Info.Content = "Username cannot exceed 40 characters";
+                }
+                else if(box.Text.Length < 5)
+                {
+                    Lbl_Info.Content = "Username must have at least 5 characters";
+                }
                 else
                 {
                     Stack_Intro_Register.Visibility = Visibility.Hidden;

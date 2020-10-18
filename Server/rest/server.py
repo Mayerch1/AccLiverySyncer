@@ -45,6 +45,8 @@ def create_user():
         abort(400)
 
     user = User(body)
+
+
     user_inserted = Connector.add_user(user)
 
     if user_inserted is None:
