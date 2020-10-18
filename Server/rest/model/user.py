@@ -4,6 +4,9 @@ class User:
     id = None
 
     steam_id = None
+
+    # this is currently an arbitrary string
+    # but renaming is too much effort
     discord_id = None
     
     # api token, cannot be reset by user

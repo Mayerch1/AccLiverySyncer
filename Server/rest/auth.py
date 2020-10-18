@@ -14,12 +14,7 @@ class Auth:
     @staticmethod
     def gen_token(user: User):
 
-        if user.id in Auth.user_dict:
-            Auth.token_list.remove(Auth.user_dict[user.id])
-            del Auth.user_dict[user.id]
-
         expires = (datetime.now() + timedelta(hours=12)).timestamp()
-        
         token = jwt.encode({'Id': user.id, 'Expires': expires}, Auth.secret, algorithm='HS256')
         
         return token

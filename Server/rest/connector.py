@@ -71,7 +71,7 @@ class Connector:
     def add_user(user: User):
         cursor = Connector._get_cursor()
 
-        cursor.execute('''select * from User where DiscordId = %d''' % (user.discord_id))
+        cursor.execute('''select * from User where DiscordId = "%s"''' % (user.discord_id))
         result = cursor.fetchone()
 
        
@@ -90,7 +90,7 @@ class Connector:
 
 
         # insert new user into db
-        cursor.execute('''insert INTO User(SteamId, DiscordId, Hash) VALUES(%d, %d, "%s")''' % (user.steam_id, user.discord_id, _hash))
+        cursor.execute('''insert INTO User(SteamId, DiscordId, Hash) VALUES(%d, "%s", "%s")''' % (user.steam_id, user.discord_id, _hash))
         id = cursor.lastrowid
 
         Connector._commit_connection()
@@ -107,7 +107,7 @@ class Connector:
             return None
 
         # currently only login over discord is supported
-        cursor.execute('''select * from User where DiscordId = %d''' % (user.discord_id))
+        cursor.execute('''select * from User where DiscordId = "%s"''' % (user.discord_id))
         result = cursor.fetchone()
 
         Connector._close_connection()

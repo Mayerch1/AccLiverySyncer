@@ -10,7 +10,7 @@ create table if not exists
 `AccLiveries`.`User`(
 	`ID` INT not null auto_increment,
     `SteamId` BIGINT,
-	`DiscordId` BIGINT,
+	`DiscordId` varchar(40),
 	`Hash` varchar(70) not null,
     PRIMARY KEY (`ID`)
 )
