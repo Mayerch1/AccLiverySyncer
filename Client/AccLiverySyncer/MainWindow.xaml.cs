@@ -36,15 +36,10 @@ namespace AccLiverySyncer
 
 
             // show settings screen if token is empty
-            if (String.IsNullOrWhiteSpace(Box_Password.Text))
+            if (!String.IsNullOrWhiteSpace(Box_Password.Text))
             {
-                Tab_Main.SelectedIndex = 3;
-            }
-            else {
-                // try to login and update the liveri list
                 InitAsync();
             }
-
         }
 
 
@@ -73,6 +68,10 @@ namespace AccLiverySyncer
                 var accPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 accPath += @"\Assetto Corsa Competizione\Customs\Liveries";
                 Box_ACCPath.Text = accPath;
+                Box_Intro_ACCPath.Text = accPath;
+
+                TabItem_Introduction.Visibility = Visibility.Visible;
+                Tab_Main.SelectedIndex = 3;
             }
             else
             {
@@ -122,8 +121,7 @@ namespace AccLiverySyncer
 
         private async Task TryLoginAsync()
         {
-            long discordId;
-            bool discordIdValid = long.TryParse(Box_Discord.Text, out discordId);
+            string discordId = Box_Discord.Text;
 
             //long steamId;
             //bool steamIdValid = long.TryParse(Box_Steam.Text, out steamId);
@@ -235,40 +233,47 @@ namespace AccLiverySyncer
 
         private async void Button_Register_Click(object sender, RoutedEventArgs e)
         {
-            long discordId;
-            bool discordIdValid = long.TryParse(Box_Discord.Text, out discordId);
+            string discordId = Box_Discord.Text;
 
-            //long steamId;
-            //bool steamIdValid = long.TryParse(Box_Steam.Text, out steamId);
-
-
-            if (discordIdValid)
+            if(discordId.Length > 40)
             {
-                Lbl_Info.Content = "Sending register request...";
+                Lbl_Info.Content = "Username too long (40 chars max)";
+                return;
+            }
+            else if (System.Text.Encoding.UTF8.GetByteCount(discordId) != discordId.Length)
+            {
+                Lbl_Info.Content = "Only ASCII characters allowed";
+                return;
+            }
 
-                string token = Box_Password.Text;
+             
+            
+            Lbl_Info.Content = "Sending register request...";
 
-                Tuple<HttpStatusCode, string> response = await Connector.Register(discordId);
+            string token = Box_Password.Text;
 
-                HttpStatusCode code = response.Item1;
-                string rcvToken = response.Item2;
+            Tuple<HttpStatusCode, string> response = await Connector.Register(discordId);
 
-                if(code == HttpStatusCode.Created)
-                {
-                    Box_Password.Text = rcvToken;
-                    Lbl_Info.Content = "Logged In";
-                    SaveConfig(); // update the config
-                }
-                else if(code == HttpStatusCode.Conflict)
-                {
-                    // display error
-                    Lbl_Info.Content = "Credentials already in use. Contact the developer if you lost your token.";
-                }
+            HttpStatusCode code = response.Item1;
+            string rcvToken = response.Item2;
+
+            if(code == HttpStatusCode.Created)
+            {
+                Box_Password.Text = rcvToken;
+                Lbl_Info.Content = "Logged In"; // register method does an automatic login
+                SaveConfig(); // update the config
+            }
+            else if(code == HttpStatusCode.Conflict)
+            {
+                // display error
+                Lbl_Info.Content = "Credentials already in use. Contact the developer if you lost your token.";
             }
             else
             {
-                Lbl_Info.Content = "Please enter your Discord Id";
+                Lbl_Info.Content = "Unexpected error on login (" + code + ") . Please contact the developer";
             }
+            
+            
         }
 
 
@@ -448,6 +453,15 @@ namespace AccLiverySyncer
             }
         }
 
+
+
+        private void Box_Intro_Host_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Box_Host.Text = ((TextBox)sender).Text;
+            Stack_Intro_ACCPath.Visibility = Visibility.Visible;
+            Dock_Intro_FinishButton.Visibility = Visibility.Visible;
+        }
+
         private void Button_Open_Update_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start("explorer.exe", "https://github.com/Mayerch1/AccLiverySyncer/releases/latest");
@@ -457,6 +471,45 @@ namespace AccLiverySyncer
         private void Button_OpenWiki_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start("explorer.exe", "https://github.com/Mayerch1/AccLiverySyncer/wiki");
+        }
+
+
+        private void Button_Intro_Register_Click(object sender, RoutedEventArgs e)
+        {
+            Stack_Intro_HostUrl.Visibility = Visibility.Visible;
+            Button_Register_Click(sender, e);
+        }
+
+
+        private void Box_Intro_Discord_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox box)
+            {
+
+                // if has only acsii characters
+                if (System.Text.Encoding.UTF8.GetByteCount(box.Text) == box.Text.Length)
+                {
+                    Stack_Intro_Register.Visibility = Visibility.Visible;
+                    Box_Discord.Text = box.Text;
+                }
+                else
+                {
+                    Stack_Intro_Register.Visibility = Visibility.Hidden;
+                    Lbl_Info.Content = "Invalid characters in username";
+                }
+            }
+        }
+
+        private void Button_Finish_Setup_Click(object sender, RoutedEventArgs e)
+        {
+            TabItem_Introduction.Visibility = Visibility.Hidden;
+            Tab_Main.SelectedIndex = 0;
+            SaveConfig();
+        }
+
+        private void Box_Intro_ACCPath_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Box_ACCPath.Text = ((TextBox)sender).Text;
         }
     }
 }

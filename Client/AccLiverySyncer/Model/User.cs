@@ -7,7 +7,7 @@ namespace AccLiverySyncer.Model
     public class User
     {
         public long SteamId;
-        public long DiscordId;
+        public string DiscordId;
         public string Token;
     }
 }

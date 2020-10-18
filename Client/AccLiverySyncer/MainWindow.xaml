@@ -105,7 +105,7 @@
                 <TabItem Header="Settings">
                     <StackPanel>
                         
-                        <Label Content="Discord Id" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+                        <Label Content="Username" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
 
                         <TextBox Name="Box_Discord" HorizontalAlignment="Stretch" TextWrapping="Wrap" VerticalAlignment="Top" />
 
@@ -130,20 +130,55 @@
                     </StackPanel>
 
                 </TabItem>
-                <TabItem Header="Introduction">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        
-                        <Image Source="res/Setup_1.png" Grid.Row="0" Grid.RowSpan="3"/>
-                        <Button Content="Open Wiki" Grid.Row="3" HorizontalAlignment="Stretch" Click="Button_OpenWiki_Click"/>
+                <TabItem Name="TabItem_Introduction" Header="Introduction" Visibility="Hidden">
+                    <StackPanel>
 
-                    </Grid>
+                        <StackPanel Name="Stack_Intro_Name">
+                            <Label Content="1. Set a unique username "/>
+                            <Label Content="(if it is not your steam-Id or discord-Id you cannot reset your token, see wiki)"/>
+                            <TextBox Margin="5" HorizontalAlignment="Stretch" TextWrapping="Wrap" VerticalAlignment="Top" 
+                                     TextChanged="Box_Intro_Discord_TextChanged"/>
+                        </StackPanel>
+                        
+                        <Separator Margin="0,10,0,10"/>
+
+                        <StackPanel Name="Stack_Intro_Register" Visibility="Hidden">
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                <Button Margin="5" Content=" 2. Register "
+                                        HorizontalAlignment="Left" VerticalAlignment="Top" 
+                                        Click="Button_Intro_Register_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Separator Margin="0,10,0,10"/>
+
+                        <StackPanel Name="Stack_Intro_HostUrl" Visibility="Hidden">
+                            <Label Content="3. Enter the host url"/>
+                            <Label Content=" Ask your league organizer for the address"/>
+                            <TextBox Name="Box_Intro_Host" HorizontalAlignment="Stretch" TextChanged="Box_Intro_Host_TextChanged"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5,0,5"/>
+
+                        <StackPanel Name="Stack_Intro_ACCPath" Visibility="Hidden">
+                            <Label Content="4. Make sure this points to your acc liveries"/>
+                            <Label Content="ACC Path"/>
+                            <TextBox Name="Box_Intro_ACCPath" HorizontalAlignment="Stretch" VerticalAlignment="Top" TextChanged="Box_Intro_ACCPath_TextChanged"/>
+                        </StackPanel>
+
+                        <Separator Margin="0,5,0,5"/>
+
+                        <DockPanel Name="Dock_Intro_FinishButton" Visibility="Hidden">
+                            <Button Content="Finish Setup" Click="Button_Finish_Setup_Click" DockPanel.Dock="Left" Margin="5,0,10,0"/>
+                            <Button Content="Open Wiki" Click="Button_OpenWiki_Click" Margin="10,0,10,0"/>
+
+                        </DockPanel>
+                        
+
+                    </StackPanel>
+                  
                 </TabItem>
+                
                 <TabItem Name="TabItem_Update" Header="Update" Visibility="Hidden">
                     <Grid>
                         <Button Content="Open Update" Click="Button_Open_Update_Click"/>

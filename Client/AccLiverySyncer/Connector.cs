@@ -29,7 +29,7 @@ namespace AccLiverySyncer
         private static  string jwt;
 
 
-        static public async Task<Tuple<HttpStatusCode, string>> Register(long discordId)
+        static public async Task<Tuple<HttpStatusCode, string>> Register(string discordId)
         {
             string token = "";
 
@@ -48,7 +48,7 @@ namespace AccLiverySyncer
                 user = Newtonsoft.Json.JsonConvert.DeserializeObject<User>(response.Content);
                 token = user.Token;
 
-                // this cannot fail on successfull login
+                // this cannot fail after a sucessfull register
                 await Login(discordId, token);
             }
 
@@ -57,7 +57,7 @@ namespace AccLiverySyncer
         }
 
 
-        public static async Task<HttpStatusCode> Login(long discordId, string token)
+        public static async Task<HttpStatusCode> Login(string discordId, string token)
         {
             
             var client = new RestClient(baseUri + "users/login");
